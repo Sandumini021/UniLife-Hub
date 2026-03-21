@@ -100,7 +100,7 @@ const Dashboard = () => {
                 <button className={styles.addBtn} onClick={() => setIsModalOpen(true)}>
                     <span>+</span> Add New Category
                 </button>
-                <button className={styles.manageBtn}>
+                <button className={styles.manageBtn} onClick={() => navigate('/countdowns')}>
                     ⏱️ Manage Countdowns
                 </button>
             </div>
