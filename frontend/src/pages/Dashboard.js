@@ -84,35 +84,109 @@ const Dashboard = () => {
         return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     };
 
-    // --- Dummy Data Generation ---
+    // --- Enhanced Dummy Data Generation ---
     const handleGenerateDummyData = async () => {
-        if (!window.confirm("This will populate your app with dummy data. Proceed?")) return;
+        // Updated short confirmation message
+        if (!window.confirm("This will populate dummy data. Proceed?")) return;
         setIsGenerating(true);
+        
         try {
-            const catRes1 = await axios.post('http://localhost:5000/api/categories', { name: "ITPM Assignment" });
-            const catRes2 = await axios.post('http://localhost:5000/api/categories', { name: "PAF Project" });
-            const catRes3 = await axios.post('http://localhost:5000/api/categories', { name: "CN Repeat" });
+            // Distinct Categories with uniquely distributed tasks
+            const dummyDataStructure = [
+                {
+                    name: "ITPM Assignment",
+                    tasks: [
+                        { content: "Requirement Gathering", status: "Completed" },
+                        { content: "UI/UX Figma Design", status: "Completed" },
+                        { content: "Backend Setup", status: "In Progress" },
+                        { content: "Frontend Integration", status: "In Progress" },
+                        { content: "Database Modeling", status: "In Progress" },
+                        { content: "Unit Testing", status: "To Do" },
+                        { content: "Deployment", status: "To Do" }
+                    ]
+                },
+                {
+                    name: "PAF Final Project",
+                    tasks: [
+                        { content: "Learn Spring Boot", status: "Completed" },
+                        { content: "Create REST APIs", status: "Completed" },
+                        { content: "Connect MongoDB", status: "Completed" },
+                        { content: "Auth Middleware", status: "Completed" },
+                        { content: "Write Documentation", status: "To Do" },
+                        { content: "Prepare Slides", status: "To Do" }
+                    ]
+                },
+                {
+                    name: "CN Repeat Notes",
+                    tasks: [
+                        { content: "Chapter 1 Summary", status: "Completed" },
+                        { content: "Subnetting Practice", status: "In Progress" },
+                        { content: "2023 Past Paper", status: "To Do" },
+                        { content: "2022 Past Paper", status: "To Do" },
+                        { content: "Watch Lecture Recordings", status: "To Do" }
+                    ]
+                },
+                {
+                    name: "Mobile App Dev",
+                    tasks: [
+                        { content: "Setup React Native CLI", status: "Completed" },
+                        { content: "Navigation Container", status: "In Progress" },
+                        { content: "Login Screen UI", status: "To Do" },
+                        { content: "Home Screen UI", status: "To Do" }
+                    ]
+                },
+                {
+                    name: "Software Architecture",
+                    tasks: [
+                        { content: "Microservices Pattern Notes", status: "Completed" },
+                        { content: "System Design Diagram", status: "Completed" },
+                        { content: "Read MVC Case Study", status: "Completed" }
+                    ]
+                },
+                {
+                    name: "Data Science Base",
+                    tasks: [
+                        { content: "Python Basics", status: "Completed" },
+                        { content: "Pandas & Numpy", status: "In Progress" },
+                        { content: "Data Cleaning Lab", status: "In Progress" },
+                        { content: "Linear Regression", status: "To Do" },
+                        { content: "Matplotlib Charts", status: "To Do" },
+                        { content: "Final Kaggle Submission", status: "To Do" },
+                        { content: "Review Quiz 1", status: "To Do" }
+                    ]
+                }
+            ];
 
-            const id1 = catRes1.data._id;
-            const id2 = catRes2.data._id;
-            const id3 = catRes3.data._id;
+            const taskPromises = [];
 
-            await axios.post('http://localhost:5000/api/tasks', { content: "Create Frontend UI", status: "Completed", category: id1 });
-            await axios.post('http://localhost:5000/api/tasks', { content: "Setup Backend Routes", status: "In Progress", category: id1 });
-            await axios.post('http://localhost:5000/api/tasks', { content: "Implement Drag and Drop", status: "To Do", category: id1 });
+            // Loop through the structure to create categories and their specific tasks
+            for (const catData of dummyDataStructure) {
+                const res = await axios.post('http://localhost:5000/api/categories', { name: catData.name });
+                const catId = res.data._id;
 
-            await axios.post('http://localhost:5000/api/tasks', { content: "Learn Spring Boot", status: "Completed", category: id2 });
-            await axios.post('http://localhost:5000/api/tasks', { content: "Connect MySQL DB", status: "To Do", category: id2 });
+                for (const task of catData.tasks) {
+                    taskPromises.push(
+                        axios.post('http://localhost:5000/api/tasks', { ...task, category: catId })
+                    );
+                }
+            }
+            
+            // Fire all task creations simultaneously
+            await Promise.all(taskPromises);
 
-            await axios.post('http://localhost:5000/api/tasks', { content: "Study Subnetting", status: "In Progress", category: id3 });
-            await axios.post('http://localhost:5000/api/tasks', { content: "Past Paper 2023", status: "To Do", category: id3 });
-
-            const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
-            const nextWeek = new Date(); nextWeek.setDate(nextWeek.getDate() + 7);
+            // Add some Countdowns
+            const today = new Date();
+            const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
+            const threeDays = new Date(today); threeDays.setDate(threeDays.getDate() + 3);
+            const nextWeek = new Date(today); nextWeek.setDate(nextWeek.getDate() + 7);
+            const nextMonth = new Date(today); nextMonth.setDate(nextMonth.getDate() + 20);
 
             await axios.post('http://localhost:5000/api/countdowns', { description: "ITPM Progress Presentation", deadline: tomorrow.toISOString().split('T')[0] });
-            await axios.post('http://localhost:5000/api/countdowns', { description: "PAF Final Submission", deadline: nextWeek.toISOString().split('T')[0] });
+            await axios.post('http://localhost:5000/api/countdowns', { description: "PAF Final Submission", deadline: threeDays.toISOString().split('T')[0] });
+            await axios.post('http://localhost:5000/api/countdowns', { description: "MAD Mini Project Review", deadline: nextWeek.toISOString().split('T')[0] });
+            await axios.post('http://localhost:5000/api/countdowns', { description: "End Semester Exams Start", deadline: nextMonth.toISOString().split('T')[0] });
 
+            // Refresh UI
             await fetchAllData();
         } catch (error) {
             console.error("Error generating dummy data:", error);
@@ -138,7 +212,6 @@ const Dashboard = () => {
                     <div className={styles.progressBar} style={{ width: `${overallProgress}%` }}></div>
                 </div>
                 
-                {/* --- CLICKABLE ALERT SECTION --- */}
                 {activeCountdowns.length > 0 && (
                     <div 
                         className={styles.alertCountdownList} 
