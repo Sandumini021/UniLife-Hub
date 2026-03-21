@@ -38,7 +38,7 @@ const TaskManager = () => {
             const currentCat = catRes.data.find(c => c._id === categoryId);
             if (currentCat) {
                 setCategoryName(currentCat.name);
-                setEditCategoryName(currentCat.name); // Pre-fill edit input
+                setEditCategoryName(currentCat.name);
             }
 
             const taskRes = await axios.get(`http://localhost:5000/api/tasks?category=${categoryId}`);
@@ -70,7 +70,7 @@ const TaskManager = () => {
         try {
             await axios.delete(`http://localhost:5000/api/categories/${categoryId}`);
             setIsDeleteModalOpen(false);
-            navigate('/'); // Redirect to Dashboard after deletion
+            navigate('/');
         } catch (error) {
             console.error("Error deleting category:", error);
         }
@@ -78,7 +78,10 @@ const TaskManager = () => {
 
     // Task Actions
     const handleAddTask = async (status) => {
-        if (!newTaskContent.trim()) return;
+        if (!newTaskContent.trim()) {
+            setActiveInputColumn(null); // Just close if empty
+            return;
+        }
         try {
             const res = await axios.post('http://localhost:5000/api/tasks', {
                 content: newTaskContent, status: status, category: categoryId
@@ -166,7 +169,7 @@ const TaskManager = () => {
                     </div>
                 </div>
                 
-                <div style={{width: '150px'}}></div> {/* Spacer */}
+                <div style={{width: '150px'}}></div>
             </div>
 
             <DragDropContext onDragEnd={onDragEnd}>
@@ -205,28 +208,40 @@ const TaskManager = () => {
                                 )}
                             </Droppable>
 
+                            {/* --- Enhanced Add Task Section --- */}
                             {columnId !== 'Completed' && (
                                 <>
                                     {activeInputColumn === columnId ? (
-                                        <input 
-                                            autoFocus
-                                            className={styles.addInput}
-                                            type="text"
-                                            placeholder="Press Enter to add..."
-                                            value={newTaskContent}
-                                            onChange={(e) => setNewTaskContent(e.target.value)}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter') handleAddTask(columnId);
-                                                if (e.key === 'Escape') setActiveInputColumn(null);
-                                            }}
-                                            onBlur={() => setActiveInputColumn(null)}
-                                        />
+                                        <div className={styles.addInputContainer}>
+                                            <input 
+                                                autoFocus
+                                                className={styles.addInput}
+                                                type="text"
+                                                placeholder="What needs to be done?"
+                                                value={newTaskContent}
+                                                onChange={(e) => setNewTaskContent(e.target.value)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') handleAddTask(columnId);
+                                                    if (e.key === 'Escape') {
+                                                        setActiveInputColumn(null);
+                                                        setNewTaskContent('');
+                                                    }
+                                                }}
+                                                onBlur={() => {
+                                                    if(newTaskContent.trim() === '') setActiveInputColumn(null);
+                                                }}
+                                            />
+                                            <div className={styles.addInputHint}>
+                                                <span>Press <strong>Enter</strong> to save</span>
+                                                <span><strong>Esc</strong> to cancel</span>
+                                            </div>
+                                        </div>
                                     ) : (
                                         <button 
                                             className={styles.addTaskBtn}
                                             onClick={() => setActiveInputColumn(columnId)}
                                         >
-                                            + Add New Task
+                                            <span className={styles.plusIcon}>+</span> Add New Task
                                         </button>
                                     )}
                                 </>
@@ -236,7 +251,7 @@ const TaskManager = () => {
                 </div>
             </DragDropContext>
 
-            {/* Task Drag Confirmation Modal */}
+            {/* Modals remain unchanged below */}
             {confirmModal.isOpen && (
                 <div className={styles.modalOverlay}>
                     <div className={`${styles.modalContent} ${styles.centerModal}`}>
@@ -254,7 +269,6 @@ const TaskManager = () => {
                 </div>
             )}
 
-            {/* Edit Category Name Modal */}
             {isEditModalOpen && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modalContent}>
@@ -278,7 +292,6 @@ const TaskManager = () => {
                 </div>
             )}
 
-            {/* Delete Category Confirmation Modal */}
             {isDeleteModalOpen && (
                 <div className={styles.modalOverlay}>
                     <div className={`${styles.modalContent} ${styles.centerModal}`}>
