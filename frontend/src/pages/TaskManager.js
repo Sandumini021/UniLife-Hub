@@ -18,15 +18,15 @@ const TaskManager = () => {
     const [newTaskContent, setNewTaskContent] = useState('');
     const [activeInputColumn, setActiveInputColumn] = useState(null);
 
-    // Custom Confirmation Modal State
+    // Modals States
     const [confirmModal, setConfirmModal] = useState({
-        isOpen: false,
-        taskName: '',
-        taskId: null,
-        destCol: '',
-        sourceCol: '',
-        originalColumns: null // Store original state to revert if cancelled
+        isOpen: false, taskName: '', taskId: null, destCol: '', sourceCol: '', originalColumns: null
     });
+    
+    // New Modal States for Category Edit/Delete
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editCategoryName, setEditCategoryName] = useState('');
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     useEffect(() => {
         fetchData();
@@ -36,7 +36,10 @@ const TaskManager = () => {
         try {
             const catRes = await axios.get('http://localhost:5000/api/categories');
             const currentCat = catRes.data.find(c => c._id === categoryId);
-            if (currentCat) setCategoryName(currentCat.name);
+            if (currentCat) {
+                setCategoryName(currentCat.name);
+                setEditCategoryName(currentCat.name); // Pre-fill edit input
+            }
 
             const taskRes = await axios.get(`http://localhost:5000/api/tasks?category=${categoryId}`);
             const tasks = taskRes.data;
@@ -51,17 +54,37 @@ const TaskManager = () => {
         }
     };
 
+    // Category Actions
+    const handleUpdateCategoryName = async () => {
+        if (!editCategoryName.trim()) return;
+        try {
+            await axios.put(`http://localhost:5000/api/categories/${categoryId}`, { name: editCategoryName });
+            setCategoryName(editCategoryName);
+            setIsEditModalOpen(false);
+        } catch (error) {
+            console.error("Error updating category name:", error);
+        }
+    };
+
+    const handleDeleteCategory = async () => {
+        try {
+            await axios.delete(`http://localhost:5000/api/categories/${categoryId}`);
+            setIsDeleteModalOpen(false);
+            navigate('/'); // Redirect to Dashboard after deletion
+        } catch (error) {
+            console.error("Error deleting category:", error);
+        }
+    };
+
+    // Task Actions
     const handleAddTask = async (status) => {
         if (!newTaskContent.trim()) return;
         try {
             const res = await axios.post('http://localhost:5000/api/tasks', {
-                content: newTaskContent,
-                status: status,
-                category: categoryId
+                content: newTaskContent, status: status, category: categoryId
             });
             setColumns(prev => ({
-                ...prev,
-                [status]: [...prev[status], res.data]
+                ...prev, [status]: [...prev[status], res.data]
             }));
             setNewTaskContent('');
             setActiveInputColumn(null);
@@ -79,11 +102,8 @@ const TaskManager = () => {
         const sourceCol = source.droppableId;
         const destCol = destination.droppableId;
         const taskToMove = columns[sourceCol].find(t => t._id === draggableId);
-
-        // Save current state in case we need to revert
         const originalColumns = { ...columns };
 
-        // Optimistically update UI so the item doesn't snap back immediately
         const sourceTasks = Array.from(columns[sourceCol]);
         const destTasks = sourceCol === destCol ? sourceTasks : Array.from(columns[destCol]);
 
@@ -92,35 +112,25 @@ const TaskManager = () => {
         destTasks.splice(destination.index, 0, removed);
 
         setColumns({
-            ...columns,
-            [sourceCol]: sourceTasks,
-            [destCol]: destTasks
+            ...columns, [sourceCol]: sourceTasks, [destCol]: destTasks
         });
 
-        // If moving to a different column, trigger custom confirmation
         if (sourceCol !== destCol) {
             setConfirmModal({
-                isOpen: true,
-                taskName: taskToMove.content,
-                taskId: draggableId,
-                destCol: destCol,
-                sourceCol: sourceCol,
-                originalColumns: originalColumns
+                isOpen: true, taskName: taskToMove.content, taskId: draggableId,
+                destCol: destCol, sourceCol: sourceCol, originalColumns: originalColumns
             });
         } else {
-            // Reordering within the same column (No confirmation needed)
             updateTaskInBackend(draggableId, destCol);
         }
     };
 
-    // Confirm Modal Actions
     const handleConfirmDrop = () => {
         updateTaskInBackend(confirmModal.taskId, confirmModal.destCol);
         setConfirmModal({ ...confirmModal, isOpen: false });
     };
 
     const handleCancelDrop = () => {
-        // Revert to original UI state
         setColumns(confirmModal.originalColumns);
         setConfirmModal({ ...confirmModal, isOpen: false });
     };
@@ -130,11 +140,10 @@ const TaskManager = () => {
             await axios.put(`http://localhost:5000/api/tasks/${taskId}`, { status: newStatus });
         } catch (error) {
             console.error("Error updating task:", error);
-            fetchData(); // Revert on error
+            fetchData(); 
         }
     };
 
-    // Helper function to set specific CSS classes per column
     const getColumnClass = (colName) => {
         if (colName === 'To Do') return `${styles.column} ${styles.colToDo}`;
         if (colName === 'In Progress') return `${styles.column} ${styles.colInProgress}`;
@@ -148,8 +157,16 @@ const TaskManager = () => {
                 <button className={styles.backBtn} onClick={() => navigate('/')}>
                     ⬅ Back to Dashboard
                 </button>
-                <div className={styles.title}>{categoryName}</div>
-                <div style={{width: '150px'}}></div>
+                
+                <div className={styles.titleSection}>
+                    <div className={styles.title}>{categoryName}</div>
+                    <div className={styles.headerActions}>
+                        <button className={`${styles.iconBtn} ${styles.btnEdit}`} onClick={() => setIsEditModalOpen(true)} title="Rename Category">✏️</button>
+                        <button className={`${styles.iconBtn} ${styles.btnDelete}`} onClick={() => setIsDeleteModalOpen(true)} title="Delete Category">🗑️</button>
+                    </div>
+                </div>
+                
+                <div style={{width: '150px'}}></div> {/* Spacer */}
             </div>
 
             <DragDropContext onDragEnd={onDragEnd}>
@@ -177,7 +194,7 @@ const TaskManager = () => {
                                                         {...provided.draggableProps}
                                                         {...provided.dragHandleProps}
                                                     >
-                                                        {columnId === 'Completed' && <span style={{color: '#69b3a2', fontWeight: 'bold'}}>✓</span>}
+                                                        {columnId === 'Completed' && <span style={{color: '#10b981', fontWeight: 'bold'}}>✓</span>}
                                                         {task.content}
                                                     </div>
                                                 )}
@@ -219,10 +236,10 @@ const TaskManager = () => {
                 </div>
             </DragDropContext>
 
-            {/* Custom Interactive Confirmation Modal */}
+            {/* Task Drag Confirmation Modal */}
             {confirmModal.isOpen && (
-                <div className={styles.confirmOverlay}>
-                    <div className={styles.confirmBox}>
+                <div className={styles.modalOverlay}>
+                    <div className={`${styles.modalContent} ${styles.centerModal}`}>
                         <div className={styles.confirmIcon}>⚠️</div>
                         <div className={styles.confirmText}>
                             Are you sure you want to move <br/> 
@@ -232,6 +249,47 @@ const TaskManager = () => {
                         <div className={styles.btnGroup}>
                             <button className={styles.btnCancel} onClick={handleCancelDrop}>Cancel</button>
                             <button className={styles.btnOk} onClick={handleConfirmDrop}>Yes, Move it</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Category Name Modal */}
+            {isEditModalOpen && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modalContent}>
+                        <h2 style={{marginTop: 0, marginBottom: '20px', color: '#0f172a'}}>Rename Category</h2>
+                        <div className={styles.inputGroup}>
+                            <label>Category Name</label>
+                            <input 
+                                className={styles.inputField}
+                                type="text" 
+                                value={editCategoryName}
+                                onChange={(e) => setEditCategoryName(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleUpdateCategoryName()}
+                                autoFocus
+                            />
+                        </div>
+                        <div className={styles.modalActions}>
+                            <button className={styles.btnCancel} onClick={() => setIsEditModalOpen(false)}>Cancel</button>
+                            <button className={styles.btnOk} onClick={handleUpdateCategoryName}>Rename</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Category Confirmation Modal */}
+            {isDeleteModalOpen && (
+                <div className={styles.modalOverlay}>
+                    <div className={`${styles.modalContent} ${styles.centerModal}`}>
+                        <div className={styles.confirmIcon}>🗑️</div>
+                        <div className={styles.confirmText}>
+                            Are you sure you want to delete <span className={styles.taskHighlight}>"{categoryName}"</span>?<br/>
+                            This will also delete all tasks inside it. This cannot be undone.
+                        </div>
+                        <div className={styles.btnGroup}>
+                            <button className={styles.btnCancel} onClick={() => setIsDeleteModalOpen(false)}>Cancel</button>
+                            <button className={styles.btnDeleteConfirm} onClick={handleDeleteCategory}>Yes, Delete</button>
                         </div>
                     </div>
                 </div>
