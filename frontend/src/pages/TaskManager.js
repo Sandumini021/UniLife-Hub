@@ -18,15 +18,19 @@ const TaskManager = () => {
     const [newTaskContent, setNewTaskContent] = useState('');
     const [activeInputColumn, setActiveInputColumn] = useState(null);
 
-    // Modals States
+    // --- Modals States ---
     const [confirmModal, setConfirmModal] = useState({
         isOpen: false, taskName: '', taskId: null, destCol: '', sourceCol: '', originalColumns: null
     });
     
-    // New Modal States for Category Edit/Delete
+    // Category Modals
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editCategoryName, setEditCategoryName] = useState('');
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+    // Individual Task Modals
+    const [editTaskModal, setEditTaskModal] = useState({ isOpen: false, id: null, content: '' });
+    const [deleteTaskModal, setDeleteTaskModal] = useState({ isOpen: false, id: null, content: '' });
 
     useEffect(() => {
         fetchData();
@@ -54,7 +58,7 @@ const TaskManager = () => {
         }
     };
 
-    // Category Actions
+    // --- Category Actions ---
     const handleUpdateCategoryName = async () => {
         if (!editCategoryName.trim()) return;
         try {
@@ -76,10 +80,10 @@ const TaskManager = () => {
         }
     };
 
-    // Task Actions
+    // --- Task Actions ---
     const handleAddTask = async (status) => {
         if (!newTaskContent.trim()) {
-            setActiveInputColumn(null); // Just close if empty
+            setActiveInputColumn(null);
             return;
         }
         try {
@@ -96,6 +100,30 @@ const TaskManager = () => {
         }
     };
 
+    // Task Edit Actions
+    const handleUpdateTaskContent = async () => {
+        if (!editTaskModal.content.trim()) return;
+        try {
+            await axios.put(`http://localhost:5000/api/tasks/${editTaskModal.id}`, { content: editTaskModal.content });
+            fetchData(); // Refresh UI to show updated task
+            setEditTaskModal({ isOpen: false, id: null, content: '' });
+        } catch (error) {
+            console.error("Error updating task:", error);
+        }
+    };
+
+    // Task Delete Actions
+    const handleConfirmDeleteTask = async () => {
+        try {
+            await axios.delete(`http://localhost:5000/api/tasks/${deleteTaskModal.id}`);
+            fetchData(); // Refresh UI to remove deleted task
+            setDeleteTaskModal({ isOpen: false, id: null, content: '' });
+        } catch (error) {
+            console.error("Error deleting task:", error);
+        }
+    };
+
+    // Drag and Drop Logic
     const onDragEnd = (result) => {
         const { source, destination, draggableId } = result;
 
@@ -197,8 +225,28 @@ const TaskManager = () => {
                                                         {...provided.draggableProps}
                                                         {...provided.dragHandleProps}
                                                     >
-                                                        {columnId === 'Completed' && <span style={{color: '#10b981', fontWeight: 'bold'}}>✓</span>}
-                                                        {task.content}
+                                                        <div className={styles.taskContentWrapper}>
+                                                            <div className={styles.taskText}>
+                                                                {columnId === 'Completed' && <span style={{color: '#10b981', fontWeight: 'bold', marginRight: '5px'}}>✓</span>}
+                                                                {task.content}
+                                                            </div>
+                                                            <div className={styles.taskActions}>
+                                                                <button 
+                                                                    className={`${styles.taskActionBtn} ${styles.taskActionBtnEdit}`}
+                                                                    onClick={() => setEditTaskModal({ isOpen: true, id: task._id, content: task.content })}
+                                                                    title="Edit Task"
+                                                                >
+                                                                    ✏️
+                                                                </button>
+                                                                <button 
+                                                                    className={`${styles.taskActionBtn} ${styles.taskActionBtnDelete}`}
+                                                                    onClick={() => setDeleteTaskModal({ isOpen: true, id: task._id, content: task.content })}
+                                                                    title="Delete Task"
+                                                                >
+                                                                    🗑️
+                                                                </button>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 )}
                                             </Draggable>
@@ -208,7 +256,7 @@ const TaskManager = () => {
                                 )}
                             </Droppable>
 
-                            {/* --- Enhanced Add Task Section --- */}
+                            {/* Add Task Input Section */}
                             {columnId !== 'Completed' && (
                                 <>
                                     {activeInputColumn === columnId ? (
@@ -251,7 +299,9 @@ const TaskManager = () => {
                 </div>
             </DragDropContext>
 
-            {/* Modals remain unchanged below */}
+            {/* --- MODALS --- */}
+
+            {/* 1. Drag Confirmation Modal */}
             {confirmModal.isOpen && (
                 <div className={styles.modalOverlay}>
                     <div className={`${styles.modalContent} ${styles.centerModal}`}>
@@ -269,6 +319,49 @@ const TaskManager = () => {
                 </div>
             )}
 
+            {/* 2. Edit Task Modal */}
+            {editTaskModal.isOpen && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modalContent}>
+                        <h2 style={{marginTop: 0, marginBottom: '20px', color: '#0f172a'}}>Edit Task</h2>
+                        <div className={styles.inputGroup}>
+                            <label>Task Description</label>
+                            <input 
+                                className={styles.inputField}
+                                type="text" 
+                                value={editTaskModal.content}
+                                onChange={(e) => setEditTaskModal({ ...editTaskModal, content: e.target.value })}
+                                onKeyDown={(e) => e.key === 'Enter' && handleUpdateTaskContent()}
+                                autoFocus
+                            />
+                        </div>
+                        <div className={styles.modalActions}>
+                            <button className={styles.btnCancel} onClick={() => setEditTaskModal({ isOpen: false, id: null, content: '' })}>Cancel</button>
+                            <button className={styles.btnOk} onClick={handleUpdateTaskContent}>Update Task</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* 3. Delete Task Modal */}
+            {deleteTaskModal.isOpen && (
+                <div className={styles.modalOverlay}>
+                    <div className={`${styles.modalContent} ${styles.centerModal}`}>
+                        <div className={styles.confirmIcon}>🗑️</div>
+                        <div className={styles.confirmText}>
+                            Are you sure you want to delete <br/>
+                            <span className={styles.taskHighlight}>"{deleteTaskModal.content}"</span>?<br/>
+                            This cannot be undone.
+                        </div>
+                        <div className={styles.btnGroup}>
+                            <button className={styles.btnCancel} onClick={() => setDeleteTaskModal({ isOpen: false, id: null, content: '' })}>Cancel</button>
+                            <button className={styles.btnDeleteConfirm} onClick={handleConfirmDeleteTask}>Yes, Delete</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* 4. Edit Category Modal */}
             {isEditModalOpen && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modalContent}>
@@ -292,6 +385,7 @@ const TaskManager = () => {
                 </div>
             )}
 
+            {/* 5. Delete Category Modal */}
             {isDeleteModalOpen && (
                 <div className={styles.modalOverlay}>
                     <div className={`${styles.modalContent} ${styles.centerModal}`}>
