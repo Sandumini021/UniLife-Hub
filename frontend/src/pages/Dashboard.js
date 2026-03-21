@@ -14,7 +14,6 @@ const Dashboard = () => {
 
     const navigate = useNavigate();
 
-    // Fetch all data to calculate progress
     const fetchAllData = async () => {
         try {
             const catRes = await axios.get('http://localhost:5000/api/categories');
@@ -42,7 +41,6 @@ const Dashboard = () => {
             setError('Category name is required.');
             return;
         }
-
         try {
             const response = await axios.post('http://localhost:5000/api/categories', {
                 name: newCategoryName.trim()
@@ -73,15 +71,25 @@ const Dashboard = () => {
     const overallCompletedCount = tasks.filter(t => t.status === 'Completed').length;
     const overallProgress = totalTasksCount === 0 ? 0 : Math.round((overallCompletedCount / totalTasksCount) * 100);
 
-    const urgentCountdowns = countdowns.filter(c => !c.isCompleted).length;
+    // Filter and sort active countdowns
+    const activeCountdowns = countdowns
+        .filter(c => !c.isCompleted)
+        .sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
 
-    // --- Dummy Data Generation Logic (For Presentation) ---
+    const getDaysLeft = (dateString) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const targetDate = new Date(dateString);
+        targetDate.setHours(0, 0, 0, 0);
+        const diffTime = targetDate - today;
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    };
+
+    // --- Dummy Data Generation ---
     const handleGenerateDummyData = async () => {
         if (!window.confirm("This will populate your app with dummy data. Proceed?")) return;
-        
         setIsGenerating(true);
         try {
-            // 1. Create Dummy Categories
             const catRes1 = await axios.post('http://localhost:5000/api/categories', { name: "ITPM Assignment" });
             const catRes2 = await axios.post('http://localhost:5000/api/categories', { name: "PAF Project" });
             const catRes3 = await axios.post('http://localhost:5000/api/categories', { name: "CN Repeat" });
@@ -90,29 +98,22 @@ const Dashboard = () => {
             const id2 = catRes2.data._id;
             const id3 = catRes3.data._id;
 
-            // 2. Create Dummy Tasks for ITPM
             await axios.post('http://localhost:5000/api/tasks', { content: "Create Frontend UI", status: "Completed", category: id1 });
             await axios.post('http://localhost:5000/api/tasks', { content: "Setup Backend Routes", status: "In Progress", category: id1 });
             await axios.post('http://localhost:5000/api/tasks', { content: "Implement Drag and Drop", status: "To Do", category: id1 });
 
-            // 3. Create Dummy Tasks for PAF
             await axios.post('http://localhost:5000/api/tasks', { content: "Learn Spring Boot", status: "Completed", category: id2 });
             await axios.post('http://localhost:5000/api/tasks', { content: "Connect MySQL DB", status: "To Do", category: id2 });
 
-            // 4. Create Dummy Tasks for CN
             await axios.post('http://localhost:5000/api/tasks', { content: "Study Subnetting", status: "In Progress", category: id3 });
             await axios.post('http://localhost:5000/api/tasks', { content: "Past Paper 2023", status: "To Do", category: id3 });
 
-            // 5. Create Dummy Countdowns
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            const nextWeek = new Date();
-            nextWeek.setDate(nextWeek.getDate() + 7);
+            const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+            const nextWeek = new Date(); nextWeek.setDate(nextWeek.getDate() + 7);
 
             await axios.post('http://localhost:5000/api/countdowns', { description: "ITPM Progress Presentation", deadline: tomorrow.toISOString().split('T')[0] });
             await axios.post('http://localhost:5000/api/countdowns', { description: "PAF Final Submission", deadline: nextWeek.toISOString().split('T')[0] });
 
-            // Refresh UI
             await fetchAllData();
         } catch (error) {
             console.error("Error generating dummy data:", error);
@@ -124,11 +125,12 @@ const Dashboard = () => {
 
     return (
         <div className={styles.container}>
-            <h1 className={styles.header}>Welcome back, Dinuka! 👋</h1>
+            {/* Energetic & Universal Welcome Message */}
+            <h1 className={styles.header}>Ready to conquer your tasks? 🚀</h1>
 
             <div className={styles.alertsSection}>
                 <div className={styles.alertsHeader}>
-                    <span>🚀 Dashboard Overview</span>
+                    <span>📊 Dashboard Overview</span>
                 </div>
                 <div className={styles.progressLabel}>
                     <span>Overall Project Progress ({overallCompletedCount} of {totalTasksCount} Tasks Completed)</span>
@@ -137,9 +139,36 @@ const Dashboard = () => {
                 <div className={styles.progressBarContainer}>
                     <div className={styles.progressBar} style={{ width: `${overallProgress}%` }}></div>
                 </div>
-                {urgentCountdowns > 0 && (
-                    <div style={{marginTop: '15px', fontSize: '14px', background: 'rgba(255,255,255,0.2)', padding: '10px', borderRadius: '8px', display: 'inline-block'}}>
-                        ⚠️ You have <strong>{urgentCountdowns}</strong> active countdown(s) pending!
+                
+                {/* Detailed Active Countdowns Section */}
+                {activeCountdowns.length > 0 && (
+                    <div className={styles.alertCountdownList}>
+                        <div style={{fontWeight: '700', color: 'white', marginBottom: '5px'}}>
+                            ⏳ Upcoming Deadlines ({activeCountdowns.length}):
+                        </div>
+                        {activeCountdowns.slice(0, 3).map(c => {
+                            const days = getDaysLeft(c.deadline);
+                            let badgeText = `${days} Days Left`;
+                            let badgeClass = styles.daysLeftBadge;
+                            
+                            if (days < 0) { badgeText = "Overdue!"; badgeClass = `${styles.daysLeftBadge} ${styles.urgentBadge}`; }
+                            else if (days === 0) { badgeText = "Due Today!"; badgeClass = `${styles.daysLeftBadge} ${styles.urgentBadge}`; }
+                            
+                            return (
+                                <div key={c._id} className={styles.alertCountdownItem}>
+                                    <span>{c.description}</span>
+                                    <span className={badgeClass}>{badgeText}</span>
+                                </div>
+                            );
+                        })}
+                        {activeCountdowns.length > 3 && (
+                            <div 
+                                style={{textAlign: 'center', fontSize: '13px', marginTop: '5px', cursor: 'pointer', fontWeight: '600', textDecoration: 'underline'}} 
+                                onClick={() => navigate('/countdowns')}
+                            >
+                                View {activeCountdowns.length - 3} more...
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
@@ -186,7 +215,6 @@ const Dashboard = () => {
                     ⏱️ Manage Countdowns
                 </button>
                 
-                {/* Dummy Data Button for Presentation */}
                 <button 
                     className={styles.dummyBtn} 
                     onClick={handleGenerateDummyData}
@@ -196,6 +224,7 @@ const Dashboard = () => {
                 </button>
             </div>
 
+            {/* Modal */}
             {isModalOpen && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modalContent}>
