@@ -93,6 +93,8 @@
 }
 .btnDone { color: #10b981; background: #ecfdf5;}
 .btnDone:hover { background: #d1fae5; }
+.btnEdit { color: #3b82f6; background: #eff6ff;}
+.btnEdit:hover { background: #dbeafe; }
 .btnDelete { color: #ef4444; background: #fef2f2;}
 .btnDelete:hover { background: #fee2e2; }
 
@@ -105,7 +107,11 @@
 .modalContent {
     background: white; padding: 30px; border-radius: 16px; width: 400px;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    animation: popIn 0.2s ease-out;
 }
+
+@keyframes popIn { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
 .inputGroup { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
 .inputGroup label { font-weight: 600; color: #475569; font-size: 14px; }
 .inputField {
@@ -116,3 +122,9 @@
 .modalActions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
 .cancelBtn { background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
 .confirmBtn { background: #4f46e5; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+.deleteBtn { background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+.warningBtn { background: #f59e0b; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+
+/* Custom Confirm Texts */
+.confirmIcon { font-size: 40px; margin-bottom: 15px; text-align: center;}
+.confirmText { font-size: 16px; color: #334155; margin-bottom: 25px; line-height: 1.5; text-align: center; font-weight: 500;}
