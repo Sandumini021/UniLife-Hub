@@ -71,7 +71,6 @@ const Dashboard = () => {
     const overallCompletedCount = tasks.filter(t => t.status === 'Completed').length;
     const overallProgress = totalTasksCount === 0 ? 0 : Math.round((overallCompletedCount / totalTasksCount) * 100);
 
-    // Filter and sort active countdowns
     const activeCountdowns = countdowns
         .filter(c => !c.isCompleted)
         .sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
@@ -125,7 +124,6 @@ const Dashboard = () => {
 
     return (
         <div className={styles.container}>
-            {/* Energetic & Universal Welcome Message */}
             <h1 className={styles.header}>Ready to conquer your tasks? 🚀</h1>
 
             <div className={styles.alertsSection}>
@@ -140,7 +138,6 @@ const Dashboard = () => {
                     <div className={styles.progressBar} style={{ width: `${overallProgress}%` }}></div>
                 </div>
                 
-                {/* Detailed Active Countdowns Section */}
                 {activeCountdowns.length > 0 && (
                     <div className={styles.alertCountdownList}>
                         <div style={{fontWeight: '700', color: 'white', marginBottom: '5px'}}>
@@ -173,6 +170,7 @@ const Dashboard = () => {
                 )}
             </div>
 
+            {/* ENHANCED CATEGORY CARDS */}
             <div className={styles.categoryGrid}>
                 {categories.map((category) => {
                     const stats = calculateCategoryStats(category._id);
@@ -182,9 +180,12 @@ const Dashboard = () => {
                             className={styles.categoryCard}
                             onClick={() => handleCategoryClick(category._id)}
                         >
-                            <div className={styles.categoryTitle}>{category.name}</div>
+                            <div className={styles.categoryTitle}>
+                                <div className={styles.categoryIcon}>📁</div>
+                                {category.name}
+                            </div>
                             
-                            <div className={styles.progressLabel} style={{color: '#4a5568'}}>
+                            <div className={styles.progressLabel} style={{color: '#475569'}}>
                                 <span>Progress</span>
                                 <span>{stats.progress}%</span>
                             </div>
@@ -193,9 +194,18 @@ const Dashboard = () => {
                             </div>
 
                             <div className={styles.taskCounts}>
-                                <span>To Do: {stats.todo}</span>
-                                <span>In Progress: {stats.inProgress}</span>
-                                <span>Done: {stats.completed}</span>
+                                <div className={`${styles.countBadge} ${styles.countTodo}`}>
+                                    <span>To Do</span>
+                                    <span className={styles.countValue}>{stats.todo}</span>
+                                </div>
+                                <div className={`${styles.countBadge} ${styles.countInProgress}`}>
+                                    <span>Doing</span>
+                                    <span className={styles.countValue}>{stats.inProgress}</span>
+                                </div>
+                                <div className={`${styles.countBadge} ${styles.countDone}`}>
+                                    <span>Done</span>
+                                    <span className={styles.countValue}>{stats.completed}</span>
+                                </div>
                             </div>
                         </div>
                     );
@@ -224,7 +234,6 @@ const Dashboard = () => {
                 </button>
             </div>
 
-            {/* Modal */}
             {isModalOpen && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modalContent}>

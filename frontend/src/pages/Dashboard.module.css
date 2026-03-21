@@ -120,68 +120,122 @@
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.urgentBadge {
-    color: #ef4444;
-}
+.urgentBadge { color: #ef4444; }
 
-/* Modern Category Grid */
+/* --- ENHANCED CATEGORY GRID --- */
 .categoryGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 25px;
     margin-bottom: 40px;
 }
 
 .categoryCard {
-    background: white;
-    border-radius: 16px;
+    background: #ffffff;
+    border-radius: 20px;
     padding: 25px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
     cursor: pointer;
-    border: 1px solid #e2e8f0;
-    transition: all 0.2s ease;
+    border: 1px solid #f1f5f9;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Colorful top accent border for the card */
+.categoryCard::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #4f46e5, #06b6d4);
+    opacity: 0.8;
+    transition: opacity 0.3s;
 }
 
 .categoryCard:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    border-color: #cbd5e0;
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(79, 70, 229, 0.15);
+    border-color: #e2e8f0;
 }
 
+.categoryCard:hover::before { opacity: 1; }
+
 .categoryTitle {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1e293b;
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
     margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Icon next to the title */
+.categoryIcon {
+    background: #e0e7ff;
+    color: #4f46e5;
+    width: 35px;
+    height: 35px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
 }
 
 .categoryProgressContainer {
     background: #e2e8f0;
-    border-radius: 6px;
-    height: 8px;
-    margin-bottom: 20px;
+    border-radius: 8px;
+    height: 10px;
+    margin-bottom: 25px;
     overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .categoryProgressBar {
     background: linear-gradient(90deg, #3b82f6 0%, #06b6d4 100%);
     height: 100%;
-    border-radius: 6px;
+    border-radius: 8px;
+    transition: width 0.5s ease-in-out;
 }
 
+/* Enhanced Task Badges */
 .taskCounts {
     display: flex;
     justify-content: space-between;
-    font-size: 13px;
-    color: #64748b;
-    font-weight: 600;
-    background: #f8fafc;
-    padding: 12px;
-    border-radius: 8px;
+    gap: 10px;
     margin-top: auto;
-    border: 1px solid #f1f5f9;
+}
+
+.countBadge {
+    flex: 1;
+    text-align: center;
+    padding: 10px 5px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border: 1px solid transparent;
+}
+
+.countValue {
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.countTodo { 
+    background: #f8fafc; color: #64748b; border-color: #e2e8f0;
+}
+.countInProgress { 
+    background: #fffbeb; color: #d97706; border-color: #fde68a;
+}
+.countDone { 
+    background: #ecfdf5; color: #059669; border-color: #a7f3d0;
 }
 
 /* Buttons */
@@ -204,19 +258,13 @@
 }
 
 .addBtn {
-    background: #4f46e5;
-    color: white;
+    background: #4f46e5; color: white;
     box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
 }
 
 .addBtn:hover { background: #4338ca; transform: translateY(-2px); }
 
-.manageBtn {
-    background: white;
-    color: #475569;
-    border: 1px solid #cbd5e0;
-}
-
+.manageBtn { background: white; color: #475569; border: 1px solid #cbd5e0; }
 .manageBtn:hover { background: #f8fafc; border-color: #94a3b8; color: #0f172a; }
 
 .dummyBtn {
