@@ -138,11 +138,18 @@ const Dashboard = () => {
                     <div className={styles.progressBar} style={{ width: `${overallProgress}%` }}></div>
                 </div>
                 
+                {/* --- CLICKABLE ALERT SECTION --- */}
                 {activeCountdowns.length > 0 && (
-                    <div className={styles.alertCountdownList}>
-                        <div style={{fontWeight: '700', color: 'white', marginBottom: '5px'}}>
-                            ⏳ Upcoming Deadlines ({activeCountdowns.length}):
+                    <div 
+                        className={styles.alertCountdownList} 
+                        onClick={() => navigate('/countdowns')}
+                        title="Click to manage countdowns"
+                    >
+                        <div style={{fontWeight: '700', color: 'white', marginBottom: '5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                            <span>⏳ Upcoming Deadlines ({activeCountdowns.length}):</span>
+                            <span style={{fontSize: '13px', opacity: 0.9, backgroundColor: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '12px'}}>Manage ➔</span>
                         </div>
+                        
                         {activeCountdowns.slice(0, 3).map(c => {
                             const days = getDaysLeft(c.deadline);
                             let badgeText = `${days} Days Left`;
@@ -159,18 +166,14 @@ const Dashboard = () => {
                             );
                         })}
                         {activeCountdowns.length > 3 && (
-                            <div 
-                                style={{textAlign: 'center', fontSize: '13px', marginTop: '5px', cursor: 'pointer', fontWeight: '600', textDecoration: 'underline'}} 
-                                onClick={() => navigate('/countdowns')}
-                            >
-                                View {activeCountdowns.length - 3} more...
+                            <div style={{textAlign: 'center', fontSize: '13px', marginTop: '5px', fontWeight: '600', opacity: 0.8}}>
+                                + {activeCountdowns.length - 3} more countdowns
                             </div>
                         )}
                     </div>
                 )}
             </div>
 
-            {/* ENHANCED CATEGORY CARDS */}
             <div className={styles.categoryGrid}>
                 {categories.map((category) => {
                     const stats = calculateCategoryStats(category._id);

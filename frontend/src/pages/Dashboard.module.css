@@ -78,7 +78,7 @@
     box-shadow: 0 0 10px rgba(255,255,255,0.5);
 }
 
-/* Detailed Countdown Alert Styles */
+/* Detailed Countdown Alert Styles - NOW CLICKABLE */
 .alertCountdownList {
     margin-top: 20px;
     display: flex;
@@ -90,6 +90,15 @@
     border: 1px solid rgba(255,255,255,0.2);
     position: relative;
     z-index: 1;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.alertCountdownList:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .alertCountdownItem {
@@ -105,9 +114,8 @@
     transition: transform 0.2s;
 }
 
-.alertCountdownItem:hover {
-    transform: translateX(5px);
-    background: rgba(255,255,255,0.25);
+.alertCountdownList:hover .alertCountdownItem {
+    background: rgba(255,255,255,0.2);
 }
 
 .daysLeftBadge {
@@ -144,7 +152,6 @@
     overflow: hidden;
 }
 
-/* Colorful top accent border for the card */
 .categoryCard::before {
     content: '';
     position: absolute;
@@ -173,7 +180,6 @@
     gap: 10px;
 }
 
-/* Icon next to the title */
 .categoryIcon {
     background: #e0e7ff;
     color: #4f46e5;
