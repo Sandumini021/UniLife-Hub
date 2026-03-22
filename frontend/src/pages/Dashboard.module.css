@@ -1,0 +1,305 @@
+.container {
+    padding: 40px 20px;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8fafc;
+    min-height: 100vh;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+/* Energetic Motivational Header */
+.header {
+    font-size: 34px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #1e293b 0%, #4f46e5 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 30px;
+    letter-spacing: -0.5px;
+    animation: fadeInDown 0.5s ease-out;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Premium Alerts Section */
+.alertsSection {
+    background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 16px;
+    margin-bottom: 40px;
+    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.25);
+    position: relative;
+    overflow: hidden;
+}
+
+.alertsSection::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: -10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.alertsHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.progressLabel {
+    display: flex;
+    justify-content: space-between;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.progressBarContainer {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    height: 10px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.progressBar {
+    background: #ffffff;
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 10px rgba(255,255,255,0.5);
+}
+
+/* Detailed Countdown Alert Styles - NOW CLICKABLE */
+.alertCountdownList {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.2);
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.alertCountdownList:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.alertCountdownItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 500;
+    background: rgba(255,255,255,0.15);
+    padding: 10px 15px;
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+    transition: transform 0.2s;
+}
+
+.alertCountdownList:hover .alertCountdownItem {
+    background: rgba(255,255,255,0.2);
+}
+
+.daysLeftBadge {
+    background: white;
+    color: #4f46e5;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 12px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.urgentBadge { color: #ef4444; }
+
+/* --- ENHANCED CATEGORY GRID --- */
+.categoryGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.categoryCard {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    border: 1px solid #f1f5f9;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.categoryCard::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #4f46e5, #06b6d4);
+    opacity: 0.8;
+    transition: opacity 0.3s;
+}
+
+.categoryCard:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(79, 70, 229, 0.15);
+    border-color: #e2e8f0;
+}
+
+.categoryCard:hover::before { opacity: 1; }
+
+.categoryTitle {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.categoryIcon {
+    background: #e0e7ff;
+    color: #4f46e5;
+    width: 35px;
+    height: 35px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+}
+
+.categoryProgressContainer {
+    background: #e2e8f0;
+    border-radius: 8px;
+    height: 10px;
+    margin-bottom: 25px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.categoryProgressBar {
+    background: linear-gradient(90deg, #3b82f6 0%, #06b6d4 100%);
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.5s ease-in-out;
+}
+
+/* Enhanced Task Badges */
+.taskCounts {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: auto;
+}
+
+.countBadge {
+    flex: 1;
+    text-align: center;
+    padding: 10px 5px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border: 1px solid transparent;
+}
+
+.countValue {
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.countTodo { 
+    background: #f8fafc; color: #64748b; border-color: #e2e8f0;
+}
+.countInProgress { 
+    background: #fffbeb; color: #d97706; border-color: #fde68a;
+}
+.countDone { 
+    background: #ecfdf5; color: #059669; border-color: #a7f3d0;
+}
+
+/* Buttons */
+.actionButtons {
+    display: flex;
+    gap: 15px;
+}
+
+.addBtn, .manageBtn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.addBtn {
+    background: #4f46e5; color: white;
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+}
+
+.addBtn:hover { background: #4338ca; transform: translateY(-2px); }
+
+.manageBtn { background: white; color: #475569; border: 1px solid #cbd5e0; }
+.manageBtn:hover { background: #f8fafc; border-color: #94a3b8; color: #0f172a; }
+
+.dummyBtn {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white; border: none; padding: 12px 24px; border-radius: 8px;
+    font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+    display: flex; align-items: center; gap: 8px; margin-left: auto;
+}
+
+.dummyBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(245, 158, 11, 0.4); }
+.dummyBtn:disabled { background: #cbd5e0; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* Modal Enhancements */
+.modalOverlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+    display: flex; justify-content: center; align-items: center; z-index: 1000;
+}
+.modalContent {
+    background: white; padding: 30px; border-radius: 16px; width: 400px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+.inputField {
+    width: 100%; padding: 12px; border: 1px solid #cbd5e0; border-radius: 8px;
+    font-size: 15px; margin-bottom: 8px; box-sizing: border-box; outline: none;
+}
+.inputField:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+.errorText { color: #ef4444; font-size: 13px; margin-bottom: 15px; display: block; }
+.modalActions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.cancelBtn { background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+.confirmBtn { background: #4f46e5; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
